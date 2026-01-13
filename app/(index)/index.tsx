@@ -1,6 +1,7 @@
 import React from "react";
 import * as Haptics from "expo-haptics";
 import { Stack, useRouter } from "expo-router";
+import { Platform } from "react-native";
 import { ThemedText } from "@/components/ThemedText"
 import Button from "@/components/ui/button"
 import { Pressable, View } from "react-native"
@@ -13,20 +14,17 @@ export default function HomeScreen() {
   const router = useRouter();
   const { signOut } = useClerk();
 
-  const renderHeaderRight = () => {
-    return(
+  const renderHeaderRight = () => (
       <Pressable onPress={()=> router.push("/list/new")}>
         <IconSymbol name="plus" color={appleBlue}/>
       </Pressable>
-    )
-  }
-  const renderHeaderLeft = () => {
-    return(
+    );
+  
+  const renderHeaderLeft = () => (
       <Pressable onPress={() => router.push("/profile")}>
-        <IconSymbol name="gear" color={appleBlue}/>
+        <IconSymbol name="gear" color={appleBlue} style={{ marginRight: Platform.select({ default: 0, android: 8 }) }}/>
       </Pressable>
     )
-  }
   return (
     <>
     <Stack.Screen
@@ -35,12 +33,11 @@ export default function HomeScreen() {
         headerRight: renderHeaderRight,
         headerLeft: renderHeaderLeft
       }}
-    >
+    />
     <BodyScrollView contentContainerStyle={{padding:16}}>
       <ThemedText type="title">Home</ThemedText>
       <Button onPress={signOut}>Log out</Button>
     </BodyScrollView>
-    </Stack.Screen>
     </>
   )
 }
