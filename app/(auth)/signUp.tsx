@@ -1,12 +1,11 @@
-import * as React from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { BodyScrollView } from "@/components/ui/BodyScrollView";
 import Button from "@/components/ui/button";
 import TextInput from "@/components/ui/text-input";
+import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
 import { ClerkAPIError } from "@clerk/types";
-import { isLoaded } from "expo-font";
-import { useSignUp } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
+import * as React from "react";
 
 export default function SignUpScreen() {
   const { signUp, setActive, isLoaded } = useSignUp();
@@ -36,7 +35,10 @@ export default function SignUpScreen() {
         })
         setPendingVerification(true);
     } catch (error) {
-        console.log(error)
+        if (isClerkAPIResponseError(error)) {
+            setErrors(error.errors);
+        }
+        console.error("Sign up error:", JSON.stringify(error, null, 2));
     } finally{
         setIsLoading(false)
     }
@@ -57,7 +59,10 @@ export default function SignUpScreen() {
             console.log(signUpAttempt)
         }
     } catch (error) {
-        
+        if (isClerkAPIResponseError(error)) {
+            setErrors(error.errors);
+        }
+        console.error("Verification error:", JSON.stringify(error, null, 2));
     }finally{
         setIsLoading(false)
     }
@@ -65,8 +70,16 @@ export default function SignUpScreen() {
 
   if (pendingVerification) {
     return (
-      <BodyScrollView>
-        <TextInput value={code} />
+      <BodyScrollView contentContainerStyle={{ padding: 16 }}>
+        <ThemedText style={{ marginBottom: 16 }}>
+          Enter the verification code sent to {emailAddress}
+        </ThemedText>
+        <TextInput 
+          value={code} 
+          placeholder="Enter verification code"
+          keyboardType="number-pad"
+          onChangeText={setCode}
+        />
         <Button
           onPress={onVerifyPress}
           disabled={!code || isLoading}

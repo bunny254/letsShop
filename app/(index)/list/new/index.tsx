@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from "react";
-import { Button, StyleSheet, View } from "react-native";
 import { IconCircle } from "@/components/IconCircle";
 import { ThemedText } from "@/components/ThemedText";
 import { BodyScrollView } from "@/components/ui/BodyScrollView";
+import React, { useMemo, useState } from "react";
+import { Button, StatusBar, StyleSheet, TextInput, View } from "react-native";
 
 import { backgroundColors, emojies } from "@/constants/Colors";
+import { Href, router } from "expo-router";
 
 export default function NewListScreen() {
     const [listId, setListId] = useState("");
@@ -17,6 +18,14 @@ export default function NewListScreen() {
         () => backgroundColors[Math.floor(Math.random() * backgroundColors.length)],
         []
       );
+      const handleDismissTo = (screen: Href) => {
+        if (router.canDismiss()) {
+          router.dismiss();
+          setTimeout(() => {
+            router.push(screen);
+          }, 100);
+        }
+      };
   return (
     <BodyScrollView
       contentContainerStyle={{
@@ -24,6 +33,7 @@ export default function NewListScreen() {
         marginTop:32
       }}
     >
+     <StatusBar style="light" animated={true} />
       <View
         style={{
           alignItems: "center",
@@ -43,7 +53,7 @@ export default function NewListScreen() {
       <View style={styles.actionSection}>
           <Button onPress={() => handleDismissTo("/list/new/create")}>
             Create new list
-          </Button>
+          </Button> 
 
           <View style={styles.divider}>
             <View style={styles.line} />
@@ -52,18 +62,24 @@ export default function NewListScreen() {
             </ThemedText>
             <View style={styles.line} />
           </View>
-          <View style={{gap:16}}>
-            <Button>Create new list</Button>
-            <View style={{
-                flexDirection:"row",
-                alignItems:"center",
-                gap:"16"
-            }}>
-                <View style={styles.line}>
-                    <ThemedText style={{color: 'gray'}}>Or join existing</ThemedText>
-                </View>
-
-            </View>
+            
+          <View style={styles.joinSection}>
+            <TextInput
+              placeholder="Enter a list code"
+              value={listId}
+              onChangeText={setListId}
+              
+              containerStyle={{ marginBottom: 0 }}
+            />
+            <Button >
+              Join list
+            </Button>
+            <Button
+              variant="ghost"
+              onPress={() => handleDismissTo("/list/new/scan")}
+            >
+              Scan QR code
+            </Button>
           </View>
           </View>
     </BodyScrollView>
