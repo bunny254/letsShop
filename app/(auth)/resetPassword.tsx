@@ -1,11 +1,11 @@
-import * as React from "react";
-import { useRouter } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import { BodyScrollView } from "@/components/ui/BodyScrollView";
 import Button from "@/components/ui/button";
 import TextInput from "@/components/ui/text-input";
 import { isClerkAPIResponseError, useSignIn } from "@clerk/clerk-expo";
 import { ClerkAPIError } from "@clerk/types";
+import { useRouter } from "expo-router";
+import * as React from "react";
 
 export default function ResetPasswordScreen() {
   const { isLoaded, signIn, setActive } = useSignIn();
@@ -21,41 +21,40 @@ export default function ResetPasswordScreen() {
     if (!isLoaded) return;
     setErrors([]);
 
-  try {
-    await signIn.create({
-      strategy:"reset_password_email_code",
-      identifier: emailAddress,
-    });
+    try {
+      await signIn.create({
+        strategy: "reset_password_email_code",
+        identifier: emailAddress,
+      });
 
-    setPendingVerification(true);
-  } catch (error) {
-    if (isClerkAPIResponseError(error)) setErrors(error.errors);
+      setPendingVerification(true);
+    } catch (error) {
+      if (isClerkAPIResponseError(error)) setErrors(error.errors);
       console.error(JSON.stringify(error, null, 2));
-  }
+    }
   }, [isLoaded, emailAddress, signIn]);
 
-  const onVerifyPress = React.useCallback(async ()=>{
-    if(!isLoaded) return;
+  const onVerifyPress = React.useCallback(async () => {
+    if (!isLoaded) return;
 
-    try{
+    try {
       const signInAttempt = await signIn.attemptFirstFactor({
         strategy: "reset_password_email_code",
         code,
-        password
+        password,
       });
 
-      if(signInAttempt.status === "complete"){
-        await setActive({session: signInAttempt.createdSessionId});
-        router.replace("/")
-      }else{
-        console.error(JSON.stringify(signInAttempt, null, 2))
-        
+      if (signInAttempt.status === "complete") {
+        await setActive({ session: signInAttempt.createdSessionId });
+        router.replace("/");
+      } else {
+        console.error(JSON.stringify(signInAttempt, null, 2));
       }
-    } catch (error){
-      if(isClerkAPIResponseError(error)) setErrors(error.errors)
-        console.error(JSON.stringify(error, null, 2))
+    } catch (error) {
+      if (isClerkAPIResponseError(error)) setErrors(error.errors);
+      console.error(JSON.stringify(error, null, 2));
     }
-  }, [isLoaded, code, password, signIn, setActive, router])
+  }, [isLoaded, code, password, signIn, setActive, router]);
 
   if (pendingVerification) {
     return (
